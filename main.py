@@ -45,13 +45,11 @@ class Main:
         while True:
             grid = [['trava' for _ in range(self.grid_size_y)] for _ in range(self.grid_size_x)]
             path_length = 0
-            # Rozhodnout, zda cesta začne vertikálně nebo horizontálně
             start_edge = random.choice(['left', 'top'])
             direction = 'horizontal' if start_edge == 'left' else 'vertical'
             x, y = (0, random.randint(0, self.grid_size_y - 1)) if direction == 'horizontal' else (
             random.randint(0, self.grid_size_x - 1), 0)
 
-            # Vytvořit cestu, která vede z jedné strany na druhou
             while 0 <= x < self.grid_size_x and 0 <= y < self.grid_size_y:
                 grid[y][x] = 'cesta_horizontal' if direction == 'horizontal' else 'cesta_vertical'
                 path_length += 1
@@ -70,15 +68,13 @@ class Main:
             if path_length >= 15:
                 break
 
-        # Přidání jedné oblasti vody a jedné oblasti hor
         water_added = False
         mountain_added = False
         while not water_added or not mountain_added:
             x, y = random.randint(0, self.grid_size_x - 1), random.randint(0, self.grid_size_y - 1)
 
-            # Nastavit velikost bloku pro vodu a hory
-            water_block_size = 3  # Například 4x4 blok pro vodu
-            mountain_block_size = 2  # Například 3x3 blok pro hory
+            water_block_size = 3
+            mountain_block_size = 2
 
             if 'cesta' not in grid[y][x]:
                 if not water_added:
@@ -87,7 +83,6 @@ class Main:
                         self.place_terrain(grid, x, y, water_block_size, 'voda')
                         water_added = True
                 if not mountain_added:
-                    # Opět, 'self' je předán automaticky
                     if self.can_place_terrain(grid, x, y, mountain_block_size, 'voda'):
                         self.place_terrain(grid, x, y, mountain_block_size, 'hora')
                         mountain_added = True
@@ -98,7 +93,6 @@ class Main:
         return grid
 
     def can_place_terrain(self, grid, x, y, block_size, exclude_terrain=None):
-        # Zde 'exclude_terrain' je nastaven jako volitelný argument s defaultní hodnotou 'None'
         for i in range(block_size):
             for j in range(block_size):
                 if x + i >= self.grid_size_x or y + j >= self.grid_size_y:
