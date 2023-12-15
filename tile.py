@@ -8,7 +8,6 @@ class Tile:
     voda_texture = None
     cesta_horizontal_texture = None
     cesta_vertical_texture = None
-    cesta_cross_texture = None
     cesta_corner_tr_texture = None
     cesta_corner_br_texture = None
 
@@ -19,7 +18,6 @@ class Tile:
         Tile.voda_texture = pygame.image.load(r'C:voda.png').convert_alpha()
         Tile.cesta_horizontal_texture = pygame.image.load(r'cesta_horizontal.png').convert_alpha()
         Tile.cesta_vertical_texture = pygame.image.load(r'cesta_vertical.png').convert_alpha()
-        Tile.cesta_cross_texture = pygame.image.load(r'cesta_cross.png').convert_alpha()
         Tile.cesta_corner_tr_texture = pygame.image.load(r'cesta_corner_tr.png').convert_alpha()
         Tile.cesta_corner_br_texture = pygame.image.load(r'cesta_corner_br.png').convert_alpha()
         Tile.strom_texture = pygame.image.load(r'strom.png').convert_alpha()
