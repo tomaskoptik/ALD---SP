@@ -42,32 +42,33 @@ class Main:
         sys.exit()
 
     def generate_grid_with_logic(self):
-        grid = [['trava' for _ in range(self.grid_size_y)] for _ in range(self.grid_size_x)]
-        # Rozhodnout, zda cesta začne vertikálně nebo horizontálně
-        start_edge = random.choice(['left', 'top'])
-        direction = 'horizontal' if start_edge == 'left' else 'vertical'
-        if start_edge == 'left':
-            x, y = 0, random.randint(0, self.grid_size_y - 1)
-        else:
-            x, y = random.randint(0, self.grid_size_x - 1), 0
+        while True:
+            grid = [['trava' for _ in range(self.grid_size_y)] for _ in range(self.grid_size_x)]
+            path_length = 0
+            # Rozhodnout, zda cesta začne vertikálně nebo horizontálně
+            start_edge = random.choice(['left', 'top'])
+            direction = 'horizontal' if start_edge == 'left' else 'vertical'
+            x, y = (0, random.randint(0, self.grid_size_y - 1)) if direction == 'horizontal' else (
+            random.randint(0, self.grid_size_x - 1), 0)
 
-        # Vytvořit cestu, která vede z jedné strany na druhou
-        while 0 <= x < self.grid_size_x and 0 <= y < self.grid_size_y:
-            if direction == 'horizontal':
-                grid[y][x] = 'cesta_horizontal'
-                next_tile = 'cesta_corner_tr' if random.random() < 0.5 else 'cesta_horizontal'
-            else:
-                grid[y][x] = 'cesta_vertical'
-                next_tile = 'cesta_corner_br' if random.random() < 0.5 else 'cesta_vertical'
+            # Vytvořit cestu, která vede z jedné strany na druhou
+            while 0 <= x < self.grid_size_x and 0 <= y < self.grid_size_y:
+                grid[y][x] = 'cesta_horizontal' if direction == 'horizontal' else 'cesta_vertical'
+                path_length += 1
 
-            # Pokud nastane změna směru, použijeme rohovou dlaždici
-            if next_tile.startswith('cesta_corner'):
-                grid[y][x] = next_tile
-                direction = 'vertical' if direction == 'horizontal' else 'horizontal'
+                next_direction = 'vertical' if direction == 'horizontal' else 'horizontal'
+                next_tile = 'cesta_corner_tr' if next_direction == 'vertical' and random.random() < 0.5 else 'cesta_corner_br' if next_direction == 'horizontal' and random.random() < 0.5 else \
+                grid[y][x]
 
-            # Posunutí podle směru
-            x += 1 if direction == 'horizontal' else 0
-            y += 1 if direction == 'vertical' else 0
+                if next_tile.startswith('cesta_corner'):
+                    grid[y][x] = next_tile
+                    direction = next_direction
+
+                x += 1 if direction == 'horizontal' else 0
+                y += 1 if direction == 'vertical' else 0
+
+            if path_length >= 15:
+                break
 
         # Přidání jedné oblasti vody a jedné oblasti hor
         water_added = False
@@ -76,25 +77,35 @@ class Main:
             x, y = random.randint(0, self.grid_size_x - 1), random.randint(0, self.grid_size_y - 1)
 
             # Nastavit velikost bloku pro vodu a hory
-            water_block_size = 4  # Například 3x3 blok pro vodu
-            mountain_block_size = 3  # Například 2x2 blok pro hory
+            water_block_size = 3  # Například 4x4 blok pro vodu
+            mountain_block_size = 2  # Například 3x3 blok pro hory
 
             if 'cesta' not in grid[y][x]:
                 if not water_added:
-                    if self.can_place_terrain(grid, x, y, water_block_size):
+                    # 'self' je předán automaticky, nemusíte jej uvádět
+                    if self.can_place_terrain(grid, x, y, water_block_size, 'hora'):
                         self.place_terrain(grid, x, y, water_block_size, 'voda')
                         water_added = True
-                elif not mountain_added:
-                    if self.can_place_terrain(grid, x, y, mountain_block_size):
+                if not mountain_added:
+                    # Opět, 'self' je předán automaticky
+                    if self.can_place_terrain(grid, x, y, mountain_block_size, 'voda'):
                         self.place_terrain(grid, x, y, mountain_block_size, 'hora')
                         mountain_added = True
 
+            self.add_trees(grid)
+            self.add_houses(grid)
+
         return grid
 
-    def can_place_terrain(self, grid, x, y, block_size):
+    def can_place_terrain(self, grid, x, y, block_size, exclude_terrain=None):
+        # Zde 'exclude_terrain' je nastaven jako volitelný argument s defaultní hodnotou 'None'
         for i in range(block_size):
             for j in range(block_size):
-                if x + i >= self.grid_size_x or y + j >= self.grid_size_y or 'cesta' in grid[y + j][x + i]:
+                if x + i >= self.grid_size_x or y + j >= self.grid_size_y:
+                    return False
+                if 'cesta' in grid[y + j][x + i]:
+                    return False
+                if exclude_terrain and exclude_terrain in grid[y + j][x + i]:
                     return False
         return True
 
@@ -104,6 +115,17 @@ class Main:
                 if x + i < self.grid_size_x and y + j < self.grid_size_y:
                     grid[y + j][x + i] = terrain_type
 
+    def add_trees(self, grid, chance_to_add_tree=0.1):
+        for y in range(self.grid_size_y):
+            for x in range(self.grid_size_x):
+                if grid[y][x] == 'trava' and random.random() < chance_to_add_tree:
+                    grid[y][x] = 'strom'
+
+    def add_houses(self, grid, chance_to_add_house=0.02):
+        for y in range(self.grid_size_y):
+            for x in range(self.grid_size_x):
+                if grid[y][x] == 'trava' and random.random() < chance_to_add_house:
+                    grid[y][x] = 'dum'
 
 if __name__ == '__main__':
     Main()
