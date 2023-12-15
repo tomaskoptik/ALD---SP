@@ -14,14 +14,16 @@ class Tile:
 
     @staticmethod
     def load_textures():
-        Tile.hora_texture = pygame.image.load(r'C:\Users\Tom\Pictures\hora.png').convert_alpha()
-        Tile.trava_texture = pygame.image.load(r'C:\Users\Tom\Pictures\trava.png').convert_alpha()
-        Tile.voda_texture = pygame.image.load(r'C:\Users\Tom\Pictures\voda.png').convert_alpha()
-        Tile.cesta_horizontal_texture = pygame.image.load(r'C:\Users\Tom\Pictures\cesta_horizontal.png').convert_alpha()
-        Tile.cesta_vertical_texture = pygame.image.load(r'C:\Users\Tom\Pictures\cesta_vertical.png').convert_alpha()
-        Tile.cesta_cross_texture = pygame.image.load(r'C:\Users\Tom\Pictures\cesta_cross.png').convert_alpha()
-        Tile.cesta_corner_tr_texture = pygame.image.load(r'C:\Users\Tom\Pictures\cesta_corner_tr.png').convert_alpha()
-        Tile.cesta_corner_br_texture = pygame.image.load(r'C:\Users\Tom\Pictures\cesta_corner_br.png').convert_alpha()
+        Tile.hora_texture = pygame.image.load(r'hora.png').convert_alpha()
+        Tile.trava_texture = pygame.image.load(r'trava.png').convert_alpha()
+        Tile.voda_texture = pygame.image.load(r'C:voda.png').convert_alpha()
+        Tile.cesta_horizontal_texture = pygame.image.load(r'cesta_horizontal.png').convert_alpha()
+        Tile.cesta_vertical_texture = pygame.image.load(r'cesta_vertical.png').convert_alpha()
+        Tile.cesta_cross_texture = pygame.image.load(r'cesta_cross.png').convert_alpha()
+        Tile.cesta_corner_tr_texture = pygame.image.load(r'cesta_corner_tr.png').convert_alpha()
+        Tile.cesta_corner_br_texture = pygame.image.load(r'cesta_corner_br.png').convert_alpha()
+        Tile.strom_texture = pygame.image.load(r'strom.png').convert_alpha()
+        Tile.dum_texture = pygame.image.load(r'dum.png').convert_alpha()
 
     def __init__(self, tile_type, position):
         self.tile_type = tile_type
