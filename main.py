@@ -68,29 +68,31 @@ class Main:
             if path_length >= 15:
                 break
 
-        water_added = False
-        mountain_added = False
-        while not water_added or not mountain_added:
-            x, y = random.randint(0, self.grid_size_x - 1), random.randint(0, self.grid_size_y - 1)
+        if not self.place_water(grid):
+            return None
+        if not self.place_mountain(grid):
+            return None
 
-            water_block_size = 3
-            mountain_block_size = 2
-
-            if 'cesta' not in grid[y][x]:
-                if not water_added:
-                    # 'self' je předán automaticky, nemusíte jej uvádět
-                    if self.can_place_terrain(grid, x, y, water_block_size, 'hora'):
-                        self.place_terrain(grid, x, y, water_block_size, 'voda')
-                        water_added = True
-                if not mountain_added:
-                    if self.can_place_terrain(grid, x, y, mountain_block_size, 'voda'):
-                        self.place_terrain(grid, x, y, mountain_block_size, 'hora')
-                        mountain_added = True
-
-            self.add_trees(grid)
-            self.add_houses(grid)
+        self.add_trees(grid)
+        self.add_houses(grid)
 
         return grid
+
+    def place_water(self, grid):
+        for _ in range(10):  # Počet pokusů o umístění vody
+            x, y = random.randint(0, self.grid_size_x - 1), random.randint(0, self.grid_size_y - 1)
+            if self.can_place_terrain(grid, x, y, 1, 'cesta'):
+                self.expand_terrain(grid, x, y, 'voda', random.randint(3, 6))  # Náhodná velikost
+                return True
+        return False
+
+    def place_mountain(self, grid):
+        for _ in range(10):  # Počet pokusů o umístění hory
+            x, y = random.randint(0, self.grid_size_x - 1), random.randint(0, self.grid_size_y - 1)
+            if self.can_place_terrain(grid, x, y, 1, 'cesta') and 'voda' not in grid[y][x]:
+                self.expand_terrain(grid, x, y, 'hora', random.randint(2, 4))  # Náhodná velikost
+                return True
+        return False
 
     def can_place_terrain(self, grid, x, y, block_size, exclude_terrain=None):
         for i in range(block_size):
@@ -103,19 +105,44 @@ class Main:
                     return False
         return True
 
+    def expand_terrain(self, grid, x, y, terrain_type, max_size):
+        directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        terrain_cells = [(x, y)]
+        grid[y][x] = terrain_type
+
+        while terrain_cells and len(terrain_cells) < max_size:
+            x, y = random.choice(terrain_cells)
+            if random.random() > len(terrain_cells) / max_size: 
+                continue
+
+            random.shuffle(directions)
+            for dx, dy in directions:
+                new_x, new_y = x + dx, y + dy
+                if (0 <= new_x < self.grid_size_x and 0 <= new_y < self.grid_size_y and
+                        self.can_place_terrain(grid, new_x, new_y, 1, exclude_terrain='cesta') and
+                        grid[new_y][new_x] != terrain_type):
+                    grid[new_y][new_x] = terrain_type
+                    terrain_cells.append((new_x, new_y))
+                    break  
+
+            if random.random() < 0.1:  
+                terrain_cells.remove((x, y))
+
+        return grid
+
     def place_terrain(self, grid, x, y, block_size, terrain_type):
         for i in range(block_size):
             for j in range(block_size):
                 if x + i < self.grid_size_x and y + j < self.grid_size_y:
                     grid[y + j][x + i] = terrain_type
 
-    def add_trees(self, grid, chance_to_add_tree=0.1):
+    def add_trees(self, grid, chance_to_add_tree=0.2):
         for y in range(self.grid_size_y):
             for x in range(self.grid_size_x):
                 if grid[y][x] == 'trava' and random.random() < chance_to_add_tree:
                     grid[y][x] = 'strom'
 
-    def add_houses(self, grid, chance_to_add_house=0.02):
+    def add_houses(self, grid, chance_to_add_house=0.04):
         for y in range(self.grid_size_y):
             for x in range(self.grid_size_x):
                 if grid[y][x] == 'trava' and random.random() < chance_to_add_house:
